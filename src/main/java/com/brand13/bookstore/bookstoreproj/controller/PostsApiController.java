@@ -4,19 +4,33 @@ import com.brand13.bookstore.bookstoreproj.controller.dto.PostsResponseDto;
 import com.brand13.bookstore.bookstoreproj.controller.dto.PostsSaveRequestDto;
 import com.brand13.bookstore.bookstoreproj.controller.dto.PostsUpdateRequestDto;
 import com.brand13.bookstore.bookstoreproj.service.PostsService;
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.KeycloakDeployment;
+import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@Controller
 @RestController
 public class PostsApiController {
 
     private final PostsService postsService;
+    private final HttpServletRequest request;
+    private final HttpServletResponse response;
 
     @Autowired
-    public PostsApiController(PostsService postsService) {
+    public PostsApiController(PostsService postsService, HttpServletRequest request, HttpServletResponse response) {
+
         this.postsService = postsService;
+        this.request = request;
+        this.response = response;
     }
 
     /**
@@ -58,5 +72,12 @@ public class PostsApiController {
     @GetMapping("/api/v1/posts/{id}")
     public PostsResponseDto findById(@PathVariable Long id) {
         return postsService.findById(id);
+    }
+
+
+    @GetMapping(value = "/logout")
+    public void logout() throws ServletException, IOException {
+        request.logout();
+        response.sendRedirect("http://localhost:8080");
     }
 }
